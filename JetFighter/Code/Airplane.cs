@@ -6,21 +6,22 @@ using System.Collections.Generic;
 
 namespace JetFighter
 {
-    class Airplane
+    public class Airplane
     {
         public static Texture2D Texture { get; set; }
         public Vector2 Position { get; private set; }
         private Vector2 direction;
         private float speed;
         private List<Bullet> bullets;
-        private float bulletDelay;
+        private float shootTimer;
+        private float shootCooldown = 0.25f; // Время задержки между выстрелами в секундах
 
         public Airplane(Vector2 startPosition)
         {
             Position = startPosition;
-            speed = 5f;
+            speed = 5f; // Настройте скорость по мере необходимости
             bullets = new List<Bullet>();
-            bulletDelay = 0;
+            shootTimer = 0f;
         }
 
         public void Update(GameTime gameTime, List<Enemy> enemies)
@@ -31,49 +32,46 @@ namespace JetFighter
                 direction.X = -1;
             if (Keyboard.GetState().IsKeyDown(Keys.D) || Keyboard.GetState().IsKeyDown(Keys.Right))
                 direction.X = 1;
+            if (Keyboard.GetState().IsKeyDown(Keys.W) || Keyboard.GetState().IsKeyDown(Keys.Up))
+                direction.Y = -1;
+            if (Keyboard.GetState().IsKeyDown(Keys.S) || Keyboard.GetState().IsKeyDown(Keys.Down))
+                direction.Y = 1;
 
             Position += direction * speed;
 
             if (Position.X < 0) Position = new Vector2(0, Position.Y);
             if (Position.X > Clouds.Width - Texture.Width) Position = new Vector2(Clouds.Width - Texture.Width, Position.Y);
+            if (Position.Y < 0) Position = new Vector2(Position.X, 0);
+            if (Position.Y > Clouds.Height - Texture.Height) Position = new Vector2(Position.X, Clouds.Height - Texture.Height);
 
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
-            {
-                Shoot(gameTime);
-            }
+            shootTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            for (int i = 0; i < bullets.Count; i++)
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && shootTimer >= shootCooldown)
             {
-                bullets[i].Update();
-                if (!bullets[i].IsVisible)
-                {
-                    bullets.RemoveAt(i);
-                    i--;
-                }
+                Shoot();
+                shootTimer = 0f; // Сбросить таймер после выстрела
             }
 
             foreach (var bullet in bullets)
             {
+                bullet.Update();
                 foreach (var enemy in enemies)
                 {
-                    if (bullet.IsVisible && enemy.IsVisible && bullet.BoundingBox().Intersects(enemy.BoundingBox()))
+                    if (enemy.IsVisible && bullet.BoundingBox.Intersects(new Rectangle((int)enemy.Position.X, (int)enemy.Position.Y, Enemy.Textures[enemy.EnemyType].Width, Enemy.Textures[enemy.EnemyType].Height)))
                     {
+                        enemy.TakeDamage(1);
                         bullet.IsVisible = false;
-                        enemy.TakeDamage();
                     }
                 }
             }
+
+            bullets.RemoveAll(b => !b.IsVisible);
         }
 
-        private void Shoot(GameTime gameTime)
+        private void Shoot()
         {
-            bulletDelay -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (bulletDelay <= 0)
-            {
-                Vector2 bulletPosition = new Vector2(Position.X + Texture.Width / 2 - Bullet.Texture.Width / 2, Position.Y);
-                bullets.Add(new Bullet(bulletPosition));
-                bulletDelay = 0.25f; // скорость перезарядки
-            }
+            var bulletPosition = new Vector2(Position.X + Texture.Width / 2 - Bullet.Texture.Width / 2, Position.Y);
+            bullets.Add(new Bullet(bulletPosition));
         }
 
         public void Draw(SpriteBatch spriteBatch)

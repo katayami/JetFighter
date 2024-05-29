@@ -13,6 +13,18 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin background.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:background.png;background
+
 #begin Bullet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -116,6 +128,13 @@
 /processorParam:TextureFormat=Compressed
 /build:File.spritefont;SplashFont
 
+#begin gameOver.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:gameOver.spritefont;gameOverFont
+
 #begin Jet1.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -128,6 +147,13 @@
 /processorParam:TextureFormat=Color
 /build:Jet1.png;Jet
 
+#begin PauseFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:PauseFont.spritefont;PauseFont
+
 #begin Rectangle 2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -138,5 +164,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:Rectangle 2.png;background
+/build:Rectangle 2.png;background1
 
