@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using JetFighter.Code;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
@@ -18,40 +19,45 @@ namespace JetFighter
         private float reloadTimer;
         private int health;
         private int enemyType;
-        public bool IsVisible { get; private set; }
+        public bool IsVisible { get; set; }
         private Random rand;
 
-        private int shotsFired; // Количество выстрелов, сделанных подряд
-        public int maxShots; // Максимальное количество выстрелов перед перезарядкой
-        public float reloadTime; // Время перезарядки в секундах
-        public float ShootCooldown { get; set; } // Время задержки между выстрелами
+        private int shotsFired;
+        public int maxShots;
+        public float reloadTime;
+        public float ShootCooldown { get; set; }
+
+        private Game1 game;
 
         public int EnemyType => enemyType;
 
-        public Enemy(Vector2 startPosition, int enemyType, Random rand)
+        public List<EnemyBullet> Bullets => bullets;
+
+        public Enemy(Vector2 startPosition, int enemyType, Random rand, Game1 game)
         {
             Position = startPosition;
             this.enemyType = enemyType;
             this.rand = rand;
+            this.game = game;
             direction = new Vector2(0, 1);
             speed = 2f;
             bullets = new List<EnemyBullet>();
             shootTimer = 0f;
             reloadTimer = 0f;
             IsVisible = true;
-            health = enemyType + 1; // Здоровье зависит от типа врага
+            health = enemyType + 1;
 
-            if (enemyType == 2) // Настройка для Enemy3
+            if (enemyType == 2)
             {
                 maxShots = 5;
                 reloadTime = 3f;
-                ShootCooldown = 0.1f; // Быстрая стрельба
+                ShootCooldown = 0.1f;
             }
             else
             {
                 maxShots = 1;
                 reloadTime = 0f;
-                ShootCooldown = 1f; // Настройка по умолчанию
+                ShootCooldown = 1f;
             }
 
             shotsFired = 0;
@@ -65,7 +71,9 @@ namespace JetFighter
 
             if (Position.Y > Game1.ScreenHeight)
             {
-                Position = new Vector2(rand.Next(0, Game1.ScreenWidth - Textures[enemyType].Width), rand.Next(-Game1.ScreenHeight, 0));
+                int pointsToDeduct = enemyType + 1;
+                game.UpdateScore(-pointsToDeduct);
+                ResetPosition();
             }
 
             if (ShootCooldown != float.PositiveInfinity)
@@ -87,7 +95,7 @@ namespace JetFighter
                     if (shootTimer >= ShootCooldown)
                     {
                         Shoot();
-                        shootTimer = 0f; // Сбросить таймер после выстрела
+                        shootTimer = 0f;
                         shotsFired++;
                     }
                 }
@@ -101,6 +109,12 @@ namespace JetFighter
             }
         }
 
+        public void ResetPosition()
+        {
+            Position = new Vector2(rand.Next(0, Game1.ScreenWidth - Textures[enemyType].Width), rand.Next(-Game1.ScreenHeight, 0));
+            IsVisible = true;
+        }
+
         private void Shoot()
         {
             var bulletPosition = new Vector2(Position.X + Textures[enemyType].Width / 2 - EnemyBullet.Texture.Width / 2, Position.Y + Textures[enemyType].Height);
@@ -112,10 +126,11 @@ namespace JetFighter
             health -= damage;
             if (health <= 0)
             {
-                IsVisible = false;
-                Position = new Vector2(rand.Next(0, Game1.ScreenWidth - Textures[enemyType].Width), rand.Next(-Game1.ScreenHeight, 0));
-                health = enemyType + 1; // Сбросить здоровье
-                IsVisible = true;
+                int points = enemyType + 1;
+                game.UpdateScore(points);
+
+                ResetPosition();
+                health = enemyType + 1;
             }
         }
 

@@ -16,7 +16,7 @@ namespace JetFighter
         public Bullet(Vector2 startPosition)
         {
             Position = startPosition;
-            speed = 10f; // Adjust bullet speed as necessary
+            speed = 10f;
             IsVisible = true;
         }
 
@@ -31,6 +31,4 @@ namespace JetFighter
             spriteBatch.Draw(Texture, Position, Color.White);
         }
     }
-
-
 }

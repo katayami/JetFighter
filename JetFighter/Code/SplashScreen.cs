@@ -22,6 +22,5 @@ namespace JetFighter
             color = Color.FromNonPremultiplied(255, 255, 255, TimeCounter % 256);
             TimeCounter++;
         }
-
     }
 }

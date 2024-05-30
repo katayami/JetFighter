@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -14,12 +15,12 @@ namespace JetFighter
         private float speed;
         private List<Bullet> bullets;
         private float shootTimer;
-        private float shootCooldown = 0.25f; // Время задержки между выстрелами в секундах
+        private float shootCooldown = 0.25f;
 
         public Airplane(Vector2 startPosition)
         {
             Position = startPosition;
-            speed = 5f; // Настройте скорость по мере необходимости
+            speed = 4f;
             bullets = new List<Bullet>();
             shootTimer = 0f;
         }
@@ -49,7 +50,7 @@ namespace JetFighter
             if (Keyboard.GetState().IsKeyDown(Keys.Space) && shootTimer >= shootCooldown)
             {
                 Shoot();
-                shootTimer = 0f; // Сбросить таймер после выстрела
+                shootTimer = 0f;
             }
 
             foreach (var bullet in bullets)
@@ -72,6 +73,7 @@ namespace JetFighter
         {
             var bulletPosition = new Vector2(Position.X + Texture.Width / 2 - Bullet.Texture.Width / 2, Position.Y);
             bullets.Add(new Bullet(bulletPosition));
+            Game1.ShootSound.Play();
         }
 
         public void Draw(SpriteBatch spriteBatch)
